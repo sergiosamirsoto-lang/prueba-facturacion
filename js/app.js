@@ -202,9 +202,18 @@ function cargarSupabase() {
 }
 
 function getSupabaseClient() {
-    if (!window.supabase) return null;
+    if (!window.supabase) {
+        console.error('[PVC] Supabase library not loaded');
+        return null;
+    }
     if (!window.appSupabase) {
-        window.appSupabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.publishableKey);
+        // Validar que la key tiene formato correcto (debe empezar con eyJ)
+        const key = supabaseConfig.publishableKey;
+        if (!key || !key.startsWith('eyJ')) {
+            console.error('[PVC] La anon key de Supabase parece incorrecta. Debe empezar con "eyJ..."');
+        }
+        window.appSupabase = window.supabase.createClient(supabaseConfig.url, key);
+        console.log('[PVC] Supabase client creado');
     }
     return window.appSupabase;
 }
@@ -258,7 +267,7 @@ async function handleLogin(e) {
     await cargarSupabase();
     const client = getSupabaseClient();
     if (!client) {
-        errorEl.textContent = 'Falta configurar cliente Supabase.';
+        errorEl.textContent = '⚠️ Error de conexión con Supabase. Verifica tu internet.';
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'Entrar al sistema';
         return;
@@ -269,8 +278,22 @@ async function handleLogin(e) {
         password: passInput.value
     });
 
-    if (error || !data.user) {
-        errorEl.textContent = 'Correo o contraseña incorrectos.';
+    if (error) {
+        // Traducir errores comunes de Supabase
+        let msg = 'Error desconocido. Intenta de nuevo.';
+        const code = error.message?.toLowerCase() || '';
+        if (code.includes('invalid login') || code.includes('invalid credentials') || code.includes('email not confirmed') === false && code.includes('invalid')) {
+            msg = '❌ Correo o contraseña incorrectos. Verifica tus datos.';
+        } else if (code.includes('email not confirmed')) {
+            msg = '⚠️ Tu cuenta no ha sido confirmada. Revisa tu correo.';
+        } else if (code.includes('too many requests')) {
+            msg = '⏳ Demasiados intentos. Espera unos minutos antes de intentar de nuevo.';
+        } else if (code.includes('network') || code.includes('fetch')) {
+            msg = '📶 Sin conexión a internet. Verifica tu red.';
+        } else {
+            msg = `Error: ${error.message}`;
+        }
+        errorEl.textContent = msg;
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'Entrar al sistema';
         passInput.value = '';
@@ -278,20 +301,21 @@ async function handleLogin(e) {
         return;
     }
 
-    const seller = getSellerFromUser(data.user);
-    if (!seller) {
-        await client.auth.signOut();
-        errorEl.textContent = 'Usuario no autorizado en el sistema de cotizaciones.';
+    if (!data.user) {
+        errorEl.textContent = '❌ No se pudo iniciar sesión. Intenta de nuevo.';
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'Entrar al sistema';
         return;
     }
 
+    // Si el email no está en la lista de vendedores, usar la parte antes del @ como nombre
+    const seller = getSellerFromUser(data.user) || data.user.email.split('@')[0];
+
     document.getElementById('login-form').reset();
     btnSubmit.disabled = false;
     btnSubmit.textContent = 'Entrar al sistema';
     
-    showToast(`Bienvenido/a, ${seller}`, 'success');
+    showToast(`¡Bienvenido/a, ${seller}!`, 'success');
     setAppVisible(true, data.user, seller);
 }
 
