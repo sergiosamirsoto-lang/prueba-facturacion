@@ -792,43 +792,256 @@ document.getElementById('quote-whatsapp')?.addEventListener('click', () => {
     window.open(`https://wa.me/50494078458?text=${encodeURIComponent(msg)}`, '_blank');
 });
 
-/* -- Descargar como IMAGEN (html2canvas) -- */
+/* -- Utilidades para el Canvas de la Cotización -- */
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = String(text).split(' ');
+    let line = '';
+    let currentY = y;
+    words.forEach(word => {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+            ctx.fillText(line, x, currentY);
+            line = word;
+            currentY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    });
+    if (line) ctx.fillText(line, x, currentY);
+    return currentY + lineHeight;
+}
+
+function getWrappedCanvasLines(ctx, text, maxWidth) {
+    const words = String(text).split(' ');
+    const lines = [];
+    let line = '';
+    words.forEach(word => {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = testLine;
+        }
+    });
+    if (line) lines.push(line);
+    return lines.length || 1;
+}
+
+function drawFallbackLogo(ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(95, 95, 58, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#0d2b47';
+    ctx.stroke();
+    ctx.fillStyle = '#2e8bbd';
+    ctx.font = '700 26px Segoe UI, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('PVC', 95, 91);
+    ctx.fillStyle = '#0d2b47';
+    ctx.font = '700 15px Segoe UI, Arial';
+    ctx.fillText('SOLUTIONS', 95, 114);
+    ctx.restore();
+}
+
+function loadQuoteLogo() {
+    return new Promise(resolve => {
+        if (window.location.protocol === 'file:') return resolve(null);
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = 'img/logo.svg';
+    });
+}
+
+function saveCanvasAsPng(canvas, filename) {
+    const downloadBlob = blob => {
+        if (!blob) {
+            alert('No se pudo generar la imagen. Proba abrir la pagina desde un servidor local o GitHub Pages.');
+            return;
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+    try {
+        canvas.toBlob(downloadBlob, 'image/png');
+    } catch (error) {
+        alert('No se pudo descargar la imagen en modo local. Proba abriendo la pagina con Live Server o desde GitHub Pages.');
+    }
+}
+
+/* -- Descargar como IMAGEN (Canvas nativo) -- */
 document.getElementById('quote-download-img')?.addEventListener('click', async () => {
     updateQuoteTotals();
-    const source = document.getElementById('quote-document');
-    if (!source) return;
+    showToast('Generando imagen de alta resolución, un momento...', 'info');
 
-    showToast('Generando imagen, un momento...', 'info');
+    const rows = Array.from(document.getElementById('quote-lines').querySelectorAll('tr'))
+        .map(getLineData)
+        .filter(line => line.product && line.qty > 0);
 
-    // Ocultar temporalmente los botones no imprimibles
-    const noPrint = source.querySelectorAll('.no-print');
-    noPrint.forEach(el => el.style.visibility = 'hidden');
+    const width = 1200;
+    const measureCanvas = document.createElement('canvas');
+    const measureCtx = measureCanvas.getContext('2d');
+    measureCtx.font = '16px Segoe UI, Arial';
+    const rowHeights = rows.map(line => Math.max(34, getWrappedCanvasLines(measureCtx, line.product.producto, 520) * 18 + 16));
+    const rowsHeight = rowHeights.reduce((sum, rowHeight) => sum + rowHeight, 0);
+    const height = Math.max(860, 760 + rowsHeight);
+    const canvas = document.createElement('canvas');
+    const scale = 2;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
 
-    try {
-        const canvas = await html2canvas(source, {
-            scale: 2,          // Alta resolución
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false
-        });
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
 
-        noPrint.forEach(el => el.style.visibility = '');
-
-        const clientName = document.getElementById('quote-client').value.trim() || 'cotizacion';
-        const number = document.getElementById('quote-number').value || '';
-        const fileName = `PVC_Cotizacion_${clientName}_${number}.png`.replace(/\s+/g, '_');
-
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-
-        showToast('✅ Imagen descargada correctamente', 'success');
-    } catch (err) {
-        noPrint.forEach(el => el.style.visibility = '');
-        console.error('Error generando imagen:', err);
-        showToast('Error al generar imagen. Intenta con PDF.', 'error');
+    const logo = await loadQuoteLogo();
+    if (logo) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(95, 95, 60, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(logo, 35, 35, 120, 120);
+        ctx.restore();
+    } else {
+        drawFallbackLogo(ctx);
     }
+
+    ctx.fillStyle = '#00284c';
+    ctx.font = '700 26px Segoe UI, Arial';
+    ctx.fillText('PVC SOLUTIONS', 190, 78);
+    ctx.font = '18px Segoe UI, Arial';
+    ctx.fillText('Material de pura calidad al mejor precio', 190, 106);
+
+    ctx.font = '700 18px Segoe UI, Arial';
+    ctx.fillText('Fecha:', 820, 72);
+    ctx.fillText(document.getElementById('quote-date').value, 930, 72);
+    ctx.fillText('N. de factura:', 820, 106);
+    ctx.fillText(document.getElementById('quote-number').value, 975, 106);
+    ctx.fillText('Id. del cliente:', 820, 140);
+    ctx.fillText(document.getElementById('quote-client-id').value || '', 975, 140);
+
+    ctx.strokeStyle = '#0d2b47';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(34, 180);
+    ctx.lineTo(width - 34, 180);
+    ctx.stroke();
+
+    ctx.fillStyle = '#001b35';
+    ctx.font = '17px Segoe UI, Arial';
+    ctx.fillText('PVC SOLUTIONS HN', 190, 222);
+    ctx.fillText('RESIDENCIAL COSTAS DEL SOL ETAPA 4', 190, 252);
+    ctx.fillText('San Pedro Sula, 21101', 190, 282);
+    ctx.fillText('9407-8458', 190, 312);
+
+    ctx.fillStyle = '#1b5f98';
+    ctx.fillRect(34, 342, 560, 34);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 19px Segoe UI, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Vendedor', 174, 365);
+    ctx.fillText('Cliente', 454, 365);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#c6eafa';
+    ctx.fillRect(34, 376, 560, 34);
+    ctx.fillStyle = '#001b35';
+    ctx.font = '18px Segoe UI, Arial';
+    ctx.fillText(document.getElementById('quote-seller').value || '', 48, 399);
+    ctx.fillText(document.getElementById('quote-client').value || '', 328, 399);
+
+    const tableY = 460;
+    ctx.fillStyle = '#0d6da9';
+    ctx.fillRect(34, tableY, width - 68, 36);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 17px Segoe UI, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Cant.', 92, tableY + 24);
+    ctx.fillText('Descripcion', 430, tableY + 24);
+    ctx.fillText('Precio por unidad', 830, tableY + 24);
+    ctx.fillText('Total de linea', 1040, tableY + 24);
+    ctx.textAlign = 'left';
+
+    ctx.font = '16px Segoe UI, Arial';
+    let y = tableY + 36;
+    rows.forEach((line, index) => {
+        const rowHeight = rowHeights[index];
+        ctx.fillStyle = index % 2 === 0 ? '#c6eafa' : '#ffffff';
+        ctx.fillRect(34, y, width - 68, rowHeight);
+        ctx.fillStyle = '#001b35';
+        ctx.fillText(String(line.qty), 48, y + 23);
+        wrapCanvasText(ctx, line.product.producto, 190, y + 23, 520, 18);
+        ctx.textAlign = 'right';
+        ctx.fillText(formatMoney(line.price), 900, y + 23);
+        ctx.font = '700 16px Segoe UI, Arial';
+        ctx.fillText(formatMoney(line.total), width - 54, y + 23);
+        ctx.font = '16px Segoe UI, Arial';
+        ctx.textAlign = 'left';
+        y += rowHeight;
+    });
+
+    const productsTotal = rows.reduce((s,l) => s + l.total, 0);
+    const laborTotal = Number(document.getElementById('quote-labor').value) || 0;
+    const total = productsTotal + laborTotal;
+
+    y += 18;
+    ctx.strokeStyle = '#0d2b47';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(34, y);
+    ctx.lineTo(width - 34, y);
+    ctx.stroke();
+
+    y += 34;
+    ctx.font = '700 18px Segoe UI, Arial';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#001b35';
+    ctx.fillText('Total productos', 925, y);
+    ctx.fillStyle = '#c6eafa';
+    ctx.fillRect(950, y - 24, 196, 30);
+    ctx.fillStyle = '#001b35';
+    ctx.font = '17px Segoe UI, Arial';
+    ctx.fillText(formatMoney(productsTotal), 1134, y);
+
+    y += 38;
+    ctx.font = '700 18px Segoe UI, Arial';
+    ctx.fillText('Mano de obra', 925, y);
+    ctx.fillStyle = '#c6eafa';
+    ctx.fillRect(950, y - 24, 196, 30);
+    ctx.fillStyle = '#001b35';
+    ctx.font = '17px Segoe UI, Arial';
+    ctx.fillText(formatMoney(laborTotal), 1134, y);
+
+    y += 44;
+    ctx.font = '700 20px Segoe UI, Arial';
+    ctx.fillText('Total general', 925, y);
+    ctx.fillStyle = '#c6eafa';
+    ctx.fillRect(950, y - 27, 196, 34);
+    ctx.fillStyle = '#001b35';
+    ctx.fillText(formatMoney(total), 1134, y);
+
+    ctx.textAlign = 'center';
+    ctx.font = '17px Segoe UI, Arial';
+    ctx.fillText('Todas las facturas de compras se extenderan a nombre de la empresa: PVC SOLUTIONS HN', width / 2, height - 74);
+    ctx.font = '700 20px Segoe UI, Arial';
+    ctx.fillText('Gracias por su confianza.', width / 2, height - 36);
+
+    const clientName = document.getElementById('quote-client').value.trim() || 'cotizacion';
+    const number = document.getElementById('quote-number').value || 'pvc';
+    const fileName = `PVC_Cotizacion_${clientName}_${number}.png`.replace(/\s+/g, '_');
+
+    saveCanvasAsPng(canvas, fileName);
+    showToast('✅ Imagen descargada', 'success');
 });
 
 /* -- Descargar como PDF (2 copias via print) -- */

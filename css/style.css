@@ -1332,13 +1332,7 @@ nav {
 
     .btn-logout { display: none; }
 
-    .header-inner::after {
-        content: 'â˜°';
-        color: #fff;
-        font-size: 1.3rem;
-        cursor: pointer;
-        padding: 4px 8px;
-    }
+    
 
     .form-row {
         grid-template-columns: 1fr;
@@ -1427,6 +1421,7 @@ nav {
     }
 
     header,
+    footer,
     .no-print,
     .quote-toolbar,
     .login-section,
@@ -1441,6 +1436,10 @@ nav {
 
     .section {
         padding: 0;
+    }
+
+    .quote-page {
+        background: #ffffff;
     }
 
     body > :not(.quote-print-sheet) {
@@ -1483,78 +1482,145 @@ nav {
         border-bottom: 1.5px solid #0d2b47;
     }
 
-    .quote-print-copy .quote-brand-block { gap: 10px; }
-
-    .quote-print-copy .quote-logo-fallback {
-        width: 48px;
-        height: 48px;
+    .quote-print-copy .quote-brand-block {
+        gap: 10px;
     }
 
-    .quote-print-copy .quote-logo-fallback span { font-size: 10px; }
+    .quote-print-copy .quote-logo {
+        width: 58px;
+        height: 58px;
+    }
+    
+    .quote-print-copy .quote-logo-fallback {
+        width: 58px;
+        height: 58px;
+    }
 
-    .quote-print-copy .quote-brand-block h3 { font-size: 13px; }
-    .quote-print-copy .quote-brand-block p  { margin-top: 2px; font-size: 8.5px; }
+    .quote-print-copy .quote-brand-block h3 {
+        font-size: 13px;
+    }
 
-    .quote-print-copy .quote-meta { gap: 1px; font-size: 8.5px; }
-    .quote-print-copy .quote-meta label { grid-template-columns: 72px 1fr; gap: 3px; }
+    .quote-print-copy .quote-brand-block p {
+        margin-top: 2px;
+        font-size: 8.5px;
+    }
+
+    .quote-print-copy .quote-meta {
+        gap: 1px;
+        font-size: 8.5px;
+    }
+
+    .quote-print-copy .quote-meta label {
+        grid-template-columns: 72px 1fr;
+        gap: 3px;
+    }
 
     .quote-print-copy .quote-company {
-        margin: 5px 0 6px 56px;
+        margin: 5px 0 6px 72px;
         font-size: 7.5px;
         line-height: 1.45;
     }
 
-    .quote-print-copy .quote-people-grid { width: 48%; margin-bottom: 10px; }
-    .quote-print-copy .quote-people-grid span { padding: 2px 5px; font-size: 8.5px; }
+    .quote-print-copy .quote-company p {
+        margin: 0 0 3px;
+    }
+
+    .quote-print-copy .quote-people-grid {
+        width: 48%;
+        margin-bottom: 10px;
+    }
+
+    .quote-print-copy .quote-people-grid span {
+        padding: 2px 5px;
+        font-size: 8.5px;
+    }
+
     .quote-print-copy .quote-people-grid .quote-print-value {
         min-height: 16px;
         padding: 3px 6px;
         background: #c6eafa;
     }
 
-    .quote-print-copy .quote-table { min-width: 0; font-size: 7.6px; }
-    .quote-print-copy .quote-table th { padding: 3px 5px; }
-    .quote-print-copy .quote-table td { height: 16px; }
+    .quote-print-copy .quote-table {
+        min-width: 0;
+        font-size: 7.6px;
+    }
+
+    .quote-print-copy .quote-table th {
+        padding: 3px 5px;
+    }
+
+    .quote-print-copy .quote-table td {
+        height: 16px;
+    }
+
     .quote-print-copy .quote-table .quote-print-value {
         display: block;
         min-height: 16px;
         padding: 3px 5px;
     }
 
-    .quote-print-copy .quote-col-qty   { width: 52px; }
-    .quote-print-copy .quote-col-price { width: 100px; }
-    .quote-print-copy .quote-col-total { width: 100px; }
+    .quote-print-copy .quote-col-qty {
+        width: 70px;
+    }
+
+    .quote-print-copy .quote-col-price,
+    .quote-print-copy .quote-col-total {
+        width: 130px;
+    }
 
     .quote-print-copy .quote-summary {
-        grid-template-columns: 1fr 200px;
-        margin-top: 6px;
-        padding-top: 5px;
-        border-top: 1.5px solid #0d2b47;
+        grid-template-columns: 1fr 220px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 0;
     }
 
-    .quote-print-copy .quote-summary-box { font-size: 8px; }
-    .quote-print-copy .quote-summary-box label { grid-template-columns: 80px 1fr; }
+    .quote-print-copy .quote-summary-box label {
+        grid-template-columns: 92px 1fr;
+    }
+
+    .quote-print-copy .quote-summary-box span {
+        padding-right: 6px;
+    }
+
     .quote-print-copy .quote-summary-box .quote-print-value {
         min-height: 16px;
-        padding: 2px 5px;
+        padding: 3px 6px;
         background: #c6eafa;
+        text-align: right;
     }
 
-    .quote-print-copy .quote-total-row { margin-top: 3px; }
-    .quote-print-copy .quote-total-row .quote-print-value {
-        font-weight: 800;
+    .quote-print-copy .quote-total-row {
+        margin-top: 5px;
         font-size: 9px;
     }
 
-    .quote-print-copy .quote-note  { font-size: 7.5px; margin: 8px auto 3px; }
-    .quote-print-copy .quote-thanks { font-size: 9px; }
-    .quote-print-copy .quote-add-line { display: none; }
+    .quote-print-copy .quote-note {
+        margin: 13px auto 5px;
+        font-size: 8.5px;
+    }
+
+    .quote-print-copy .quote-thanks {
+        font-size: 11px;
+    }
+
+    .quote-document input,
+    .quote-document select {
+        border: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .quote-table-wrap {
+        overflow: visible;
+    }
 }
 /* ============================================
    EXTRA UX & AI CHATBOT
    ============================================ */
 
-/* Búsqueda */
+/* Bï¿½squeda */
 .filter-bar {
     justify-content: space-between;
     align-items: center;
@@ -1761,7 +1827,7 @@ nav {
         width: 100%;
     }
     
-    /* Convertir tabla en tarjetas móviles */
+    /* Convertir tabla en tarjetas mï¿½viles */
     .data-table, .data-table tbody, .data-table tr, .data-table td {
         display: block;
         width: 100%;
@@ -1919,3 +1985,4 @@ nav {
         justify-content: center;
     }
 }
+
