@@ -7,7 +7,7 @@
 
 const supabaseConfig = {
     url: 'https://riepcldqgjtbcronbrcu.supabase.co',
-    publishableKey: 'sb_publishable_Amt43kBWaNI-H6mVgoG93Q_Ua6frMKm'
+    publishableKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXBjbGRxZ2p0YmNyb25icmN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTI2MTAsImV4cCI6MjA5NDcyODYxMH0.gWblF1GWLcFHov3Gdv2nW9oF2A1oGxwy-C0bN21fOIE'
 };
 
 const productosCotizacion = [
