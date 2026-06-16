@@ -1817,3 +1817,22 @@ nav {
 .ai-q-btn:hover { border-color: var(--clr-primary); color: var(--txt-primary); background: var(--bg-surface); }
 .ai-back-btn { width: 100%; background: none; border: 1.5px solid var(--border); border-radius: var(--radius-md); color: var(--txt-secondary); padding: 8px 12px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; font-weight: 600; }
 .ai-back-btn:hover { border-color: var(--clr-accent); color: var(--clr-accent); }
+
+/* ── LOGO REAL SVG ── */
+.brand-logo-img {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #fff;
+    padding: 2px;
+}
+.quote-logo-img {
+    height: 64px;
+    width: 64px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #fff;
+    padding: 4px;
+    border: 1px solid var(--border);
+}
