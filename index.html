@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>PVC SOLUTIONS — Sistema de Inventario y Pagos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════
+         HEADER — visible solo despues del login
+         ═══════════════════════════════════════════ -->
+    <header id="app-header" hidden>
+        <div class="header-inner container">
+            <div class="brand">
+                <div class="brand-logo-circle">PVC</div>
+                <h1>PVC SOLUTIONS</h1>
+            </div>
+            <nav id="app-nav">
+                <a href="#" class="nav-tab active" data-tab="facturas">📊 Facturas</a>
+                <a href="#" class="nav-tab" data-tab="cotizaciones">📝 Cotizaciones</a>
+            </nav>
+            <div class="header-actions">
+                <span class="session-info" id="session-info"></span>
+                <button class="theme-toggle" id="theme-toggle" title="Cambiar tema">🌙</button>
+                <button class="button button-sm btn-logout" id="btn-logout">Cerrar sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════
+         LOGIN — puerta de entrada obligatoria
+         ═══════════════════════════════════════════ -->
+    <section class="login-section" id="login-section">
+        <div class="login-backdrop"></div>
+        <div class="login-container">
+            <form class="login-card" id="login-form" autocomplete="off">
+                <div class="login-brand-area">
+                    <div class="login-logo-circle"><span>PVC</span></div>
+                    <h2 class="login-company">PVC SOLUTIONS HN</h2>
+                    <p class="login-tagline">Sistema de Inventario y Pagos</p>
+                </div>
+                <div class="login-divider"></div>
+                <span class="section-eyebrow">Acceso autorizado</span>
+                <h3 class="login-title">Iniciar sesión</h3>
+                <p class="login-subtitle">Ingresa con tu cuenta de vendedor autorizado.</p>
+                <label class="login-field">
+                    <span>Correo electrónico</span>
+                    <input type="email" id="login-email" autocomplete="username"
+                           placeholder="vendedor@pvcsolutionshn.com" required>
+                </label>
+                <label class="login-field">
+                    <span>Contraseña</span>
+                    <input type="password" id="login-password" autocomplete="current-password"
+                           placeholder="••••••••" required>
+                </label>
+                <p class="login-error" id="login-error" role="alert"></p>
+                <button class="button login-submit" type="submit" id="login-submit">
+                    Entrar al sistema
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         APP PRINCIPAL — oculta hasta autenticar
+         ═══════════════════════════════════════════ -->
+    <main id="app-main" hidden>
+
+        <!-- ─── Tab: Facturas ─── -->
+        <section class="tab-panel active" id="tab-facturas">
+            <div class="container section">
+                <div class="section-header">
+                    <span class="section-eyebrow">Dashboard</span>
+                    <h2 class="section-title">Gestión de Facturas</h2>
+                    <p class="section-subtitle">Administra, filtra y gestiona todas tus facturas desde un solo lugar.</p>
+                </div>
+
+                <!-- Dashboard stats -->
+                <div class="dashboard-stats">
+                    <div class="stat-card stat-card--total">
+                        <span class="stat-card-icon">📄</span>
+                        <div class="stat-card-body">
+                            <span class="stat-card-value" id="totalFacturas">0</span>
+                            <span class="stat-card-label">Total Facturas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--pending">
+                        <span class="stat-card-icon">⏳</span>
+                        <div class="stat-card-body">
+                            <span class="stat-card-value" id="totalPendientes">0</span>
+                            <span class="stat-card-label">Pendientes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--sent">
+                        <span class="stat-card-icon">✅</span>
+                        <div class="stat-card-body">
+                            <span class="stat-card-value" id="totalEnviadas">0</span>
+                            <span class="stat-card-label">Enviadas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--rejected">
+                        <span class="stat-card-icon">❌</span>
+                        <div class="stat-card-body">
+                            <span class="stat-card-value" id="totalRechazadas">0</span>
+                            <span class="stat-card-label">Rechazadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filter-bar">
+                    <div class="filter-pills">
+                        <button class="filter-pill active" data-filter="todos">Todos</button>
+                        <button class="filter-pill" data-filter="pendientes">⏳ Pendientes</button>
+                        <button class="filter-pill" data-filter="enviadas">✅ Enviadas</button>
+                        <button class="filter-pill" data-filter="rechazadas">❌ Rechazadas</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="search-cliente" placeholder="🔍 Buscar cliente...">
+                    </div>
+                </div>
+
+                <!-- Formulario subir factura -->
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h3>📤 Subir nueva factura</h3>
+                    </div>
+                    <form id="formFactura" class="upload-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cliente">Nombre del cliente</label>
+                                <input type="text" id="cliente" placeholder="Ej: Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono (WhatsApp)</label>
+                                <input type="text" id="telefono" placeholder="Ej: 50499999999" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="archivo">Adjuntar factura</label>
+                                <input type="file" id="archivo" accept="image/*,application/pdf" required>
+                            </div>
+                        </div>
+                        <button class="button" type="submit">📤 Subir Factura</button>
+                    </form>
+                </div>
+
+                <!-- Tabla de facturas -->
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h3>📋 Listado de Facturas</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>WhatsApp</th>
+                                    <th>Archivo</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th id="th-acciones">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaFacturas"></tbody>
+                        </table>
+                        <div class="empty-state" id="empty-state" hidden>
+                            <span class="empty-state-icon">📂</span>
+                            <p>No hay facturas para mostrar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Tab: Cotizaciones ─── -->
+        <section class="tab-panel" id="tab-cotizaciones">
+            <div class="container section quote-shell">
+                <div class="quote-toolbar no-print">
+                    <div>
+                        <span class="section-eyebrow">Cotizador</span>
+                        <h2 class="section-title">Crear cotización</h2>
+                        <p class="section-subtitle">Agrega productos, ajusta cantidades y genera el total al instante.</p>
+                        <p class="quote-session">Vendedor: <strong id="quote-session-seller"></strong></p>
+                    </div>
+                    <div class="quote-toolbar-actions">
+                        <button class="button button-secondary" type="button" id="quote-clear">🗑️ Limpiar</button>
+                        <button class="button button-secondary" type="button" id="quote-print">🖨️ Imprimir</button>
+                        <button class="button button-secondary" type="button" id="quote-download">📥 Descargar</button>
+                        <button class="button" type="button" id="quote-whatsapp">📱 WhatsApp</button>
+                    </div>
+                </div>
+
+                <article class="quote-document" id="quote-document">
+                    <div class="quote-document-header">
+                        <div class="quote-brand-block">
+                            <div class="quote-logo-fallback" id="quote-logo-area"><span>PVC</span></div>
+                            <div>
+                                <h3>PVC SOLUTIONS</h3>
+                                <p>Material de pura calidad al mejor precio</p>
+                            </div>
+                        </div>
+                        <div class="quote-meta">
+                            <label>Fecha: <input type="text" id="quote-date" readonly></label>
+                            <label>N. de factura: <input type="text" id="quote-number"></label>
+                            <label>Id. del cliente: <input type="text" id="quote-client-id" placeholder="Opcional"></label>
+                        </div>
+                    </div>
+
+                    <div class="quote-company">
+                        <p>PVC SOLUTIONS HN</p>
+                        <p>RESIDENCIAL COSTAS DEL SOL ETAPA 4</p>
+                        <p>San Pedro Sula, 21101</p>
+                        <p>9407-8458</p>
+                    </div>
+
+                    <div class="quote-people-grid">
+                        <label>
+                            <span>Vendedor</span>
+                            <select id="quote-seller"><option value="">Seleccionar</option></select>
+                        </label>
+                        <label>
+                            <span>Cliente</span>
+                            <input type="text" id="quote-client" placeholder="Nombre del cliente">
+                        </label>
+                    </div>
+
+                    <div class="quote-table-wrap">
+                        <table class="quote-table" aria-label="Detalle de cotización">
+                            <thead>
+                                <tr>
+                                    <th class="quote-col-qty">Cant.</th>
+                                    <th>Descripción</th>
+                                    <th class="quote-col-price">Precio unitario</th>
+                                    <th class="quote-col-total">Total línea</th>
+                                    <th class="quote-col-action no-print"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="quote-lines"></tbody>
+                        </table>
+                    </div>
+
+                    <button class="quote-add-line no-print" type="button" id="quote-add-line">+ Agregar producto</button>
+
+                    <div class="quote-summary">
+                        <div></div>
+                        <div class="quote-summary-box">
+                            <label>
+                                <span>Total productos</span>
+                                <output id="quote-subtotal">L 0.00</output>
+                            </label>
+                            <label>
+                                <span>Mano de obra</span>
+                                <input id="quote-labor" type="number" min="0" step="0.01" value="0">
+                            </label>
+                            <label class="quote-total-row">
+                                <span>Total general</span>
+                                <output id="quote-total">L 0.00</output>
+                            </label>
+                        </div>
+                    </div>
+
+                    <p class="quote-note">Todas las facturas de compras se extenderán a nombre de la empresa: PVC SOLUTIONS HN</p>
+                    <strong class="quote-thanks">Gracias por su confianza.</strong>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- Asistente FAQ (Chatbot con respuestas predeterminadas) -->
+    <div class="ai-chatbot-container">
+        <button class="ai-fab" id="ai-fab" title="Ayuda y Soporte PVC">💬</button>
+        <div class="ai-panel" id="ai-panel" hidden>
+            <div class="ai-panel-header">
+                <div class="ai-panel-title-group">
+                    <span class="ai-panel-avatar">PVC</span>
+                    <div>
+                        <span class="ai-panel-title">Asistente PVC Solutions</span>
+                        <span class="ai-panel-status">● En línea</span>
+                    </div>
+                </div>
+                <button class="ai-close" id="ai-close">&times;</button>
+            </div>
+            <div class="ai-panel-body" id="ai-messages">
+                <div class="ai-message ai-message--bot">
+                    👋 ¡Hola! Soy el asistente de <strong>PVC Solutions HN</strong>. Selecciona una categoría para obtener ayuda:
+                </div>
+                <div class="ai-categories" id="ai-categories">
+                    <button class="ai-cat-btn" data-cat="facturas">📊 Facturas</button>
+                    <button class="ai-cat-btn" data-cat="cotizaciones">📝 Cotizaciones</button>
+                    <button class="ai-cat-btn" data-cat="cuenta">🔐 Mi Cuenta</button>
+                    <button class="ai-cat-btn" data-cat="productos">📦 Productos</button>
+                    <button class="ai-cat-btn" data-cat="soporte">🛠️ Soporte</button>
+                </div>
+            </div>
+            <div class="ai-panel-footer" id="ai-footer">
+                <button class="ai-back-btn" id="ai-back" hidden>← Volver al menú</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll to top -->
+    <button class="scroll-top" id="scroll-top" aria-label="Volver arriba">↑</button>
+
+    <!-- Notificaciones toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
