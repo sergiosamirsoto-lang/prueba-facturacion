@@ -1019,4 +1019,3 @@ aiClose?.addEventListener('click', () => {
     aiPanel.hidden = true;
 });
 
-});
