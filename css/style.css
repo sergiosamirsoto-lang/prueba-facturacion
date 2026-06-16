@@ -1836,3 +1836,86 @@ nav {
     padding: 4px;
     border: 1px solid var(--border);
 }
+
+/* ── HAMBURGER MENU MOBILE ── */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    z-index: 1001;
+}
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--txt-on-dark);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.nav-mobile-actions { display: none; }
+
+@media (max-width: 768px) {
+    .hamburger { display: flex; }
+    .header-actions { display: none; }
+
+    #app-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-dark);
+        flex-direction: column;
+        padding: 16px 20px 20px;
+        gap: 8px;
+        z-index: 1000;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    #app-nav.nav-open {
+        display: flex;
+    }
+    #app-nav .nav-tab {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        text-align: left;
+    }
+    .nav-mobile-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .nav-mobile-actions .btn-logout {
+        flex: 1;
+    }
+}
+
+/* ── DOWNLOAD SPLIT BUTTONS ── */
+.download-split {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+    .download-split {
+        width: 100%;
+    }
+    .download-split .button {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+}

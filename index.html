@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 </head>
 <body>
 
@@ -21,9 +22,17 @@
                 <img src="img/logo.svg" alt="PVC Solutions Logo" class="brand-logo-img">
                 <h1>PVC SOLUTIONS</h1>
             </div>
+            <!-- Hamburger button (solo en móvil) -->
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
             <nav id="app-nav">
                 <a href="#" class="nav-tab active" data-tab="facturas">📊 Facturas</a>
                 <a href="#" class="nav-tab" data-tab="cotizaciones">📝 Cotizaciones</a>
+                <div class="nav-mobile-actions">
+                    <button class="theme-toggle" id="theme-toggle-mobile" title="Cambiar tema">🌙</button>
+                    <button class="button button-sm btn-logout" id="btn-logout-mobile">Cerrar sesión</button>
+                </div>
             </nav>
             <div class="header-actions">
                 <span class="session-info" id="session-info"></span>
@@ -32,6 +41,7 @@
             </div>
         </div>
     </header>
+
 
     <!-- ═══════════════════════════════════════════
          LOGIN — puerta de entrada obligatoria
@@ -138,8 +148,8 @@
                                 <input type="text" id="cliente" placeholder="Ej: Juan Pérez" required>
                             </div>
                             <div class="form-group">
-                                <label for="telefono">Teléfono (WhatsApp)</label>
-                                <input type="text" id="telefono" placeholder="Ej: 50499999999" required>
+                                <label for="telefono">Teléfono (WhatsApp) <span style="color:var(--txt-muted);font-size:0.8em">(opcional)</span></label>
+                                <input type="text" id="telefono" placeholder="Ej: 50499999999">
                             </div>
                         </div>
                         <div class="form-row">
@@ -192,8 +202,11 @@
                     </div>
                     <div class="quote-toolbar-actions">
                         <button class="button button-secondary" type="button" id="quote-clear">🗑️ Limpiar</button>
-                        <button class="button button-secondary" type="button" id="quote-print">🖨️ Imprimir</button>
-                        <button class="button button-secondary" type="button" id="quote-download">📥 Descargar</button>
+                        <button class="button button-secondary" type="button" id="quote-print">🖨️ Imprimir / PDF</button>
+                        <div class="download-split">
+                            <button class="button" type="button" id="quote-download-img">🖼️ Imagen</button>
+                            <button class="button button-secondary" type="button" id="quote-download-pdf">📄 PDF (2 copias)</button>
+                        </div>
                         <button class="button" type="button" id="quote-whatsapp">📱 WhatsApp</button>
                     </div>
                 </div>

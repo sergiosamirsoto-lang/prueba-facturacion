@@ -377,7 +377,7 @@ document.getElementById('formFactura')?.addEventListener("submit", async functio
     const archivoInput = document.getElementById("archivo");
     const estado = "pendientes"; // Siempre pendiente al inicio
     
-    if (!cliente || !telefono || archivoInput.files.length === 0) {
+    if (!cliente || archivoInput.files.length === 0) {
         showToast("Completa todos los campos obligatorios", "error");
         return;
     }
@@ -792,17 +792,51 @@ document.getElementById('quote-whatsapp')?.addEventListener('click', () => {
     window.open(`https://wa.me/50494078458?text=${encodeURIComponent(msg)}`, '_blank');
 });
 
-/* -- Descargar Imagen del Cotizador -- */
-// Fallback simple: Dado que Canvas puede ser complicado si hay políticas CORS locales (file://),
-// y ya implementaste Print (que permite guardar PDF), se notificará al usuario de imprimir como PDF
-// en caso de que esté usando un entorno estricto, o se podría implementar html2canvas. 
-// Para mantener pureza sin librerías extras pesadas, sugerimos el print.
-document.getElementById('quote-download')?.addEventListener('click', () => {
-    showToast('Para guardar como archivo, presiona "Imprimir" y elige "Guardar como PDF"', 'info');
-    setTimeout(() => {
-        document.getElementById('quote-print').click();
-    }, 2000);
+/* -- Descargar como IMAGEN (html2canvas) -- */
+document.getElementById('quote-download-img')?.addEventListener('click', async () => {
+    updateQuoteTotals();
+    const source = document.getElementById('quote-document');
+    if (!source) return;
+
+    showToast('Generando imagen, un momento...', 'info');
+
+    // Ocultar temporalmente los botones no imprimibles
+    const noPrint = source.querySelectorAll('.no-print');
+    noPrint.forEach(el => el.style.visibility = 'hidden');
+
+    try {
+        const canvas = await html2canvas(source, {
+            scale: 2,          // Alta resolución
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        });
+
+        noPrint.forEach(el => el.style.visibility = '');
+
+        const clientName = document.getElementById('quote-client').value.trim() || 'cotizacion';
+        const number = document.getElementById('quote-number').value || '';
+        const fileName = `PVC_Cotizacion_${clientName}_${number}.png`.replace(/\s+/g, '_');
+
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        showToast('✅ Imagen descargada correctamente', 'success');
+    } catch (err) {
+        noPrint.forEach(el => el.style.visibility = '');
+        console.error('Error generando imagen:', err);
+        showToast('Error al generar imagen. Intenta con PDF.', 'error');
+    }
 });
+
+/* -- Descargar como PDF (2 copias via print) -- */
+document.getElementById('quote-download-pdf')?.addEventListener('click', () => {
+    updateQuoteTotals();
+    window.print();
+});
+
 
 
 
@@ -817,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkSession();
 });
 
-/* ── EXTRAS (Scroll Top y Chatbot IA) ── */
+/* ── EXTRAS (Scroll Top) ── */
 const scrollTopBtn = document.getElementById('scroll-top');
 window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
@@ -829,6 +863,32 @@ window.addEventListener('scroll', () => {
 scrollTopBtn?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+/* ── HAMBURGER MENU ── */
+const hamburger = document.getElementById('hamburger');
+const appNav = document.getElementById('app-nav');
+
+hamburger?.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    appNav.classList.toggle('nav-open');
+});
+
+// Cerrar menú al hacer clic en un tab
+appNav?.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        appNav.classList.remove('nav-open');
+    });
+});
+
+// Botones móviles de logout y tema
+document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
+document.getElementById('theme-toggle-mobile')?.addEventListener('click', () => {
+    document.getElementById('theme-toggle').click();
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.getElementById('theme-toggle-mobile').textContent = isDark ? '☀️' : '🌙';
+});
+
 
 // ── FAQ CHATBOT (100% Offline, sin API) ──
 const FAQ = {
